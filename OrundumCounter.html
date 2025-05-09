@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="アークナイツの合成玉スカウト計算ツールです。" />
+        <!-- SNSカード対応 (Open Graph) -->
+        <meta property="og:title" content="合成玉カウンター" />
+        <meta property="og:description" content="選んだ日数に応じてスカウト回数を自動計算します。" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://example.com/" />
+        <meta property="og:image" content="https://example.com/og-image.jpg" />
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>	<!--jQuery-->
+        <script src="./js/OrundumCounter.js"></script>
+        <script src="./js/index.js"></script>
+        <link rel="stylesheet" href="./css/style.css">
+        <title>合成玉カウンター</title>
+    </head>
+    <footer id="fixed-footer">
+        毎日ログインして、デイリー＆ウィークリーを完了させた場合の数値です。交換等もあるので無理せず頑張りましょう～。
+        © 2025 Orundum Counter
+    </footer>
+    <body>
+                <!-- ハンバーガーメニュー -->
+        <div class="hamburger-menu">
+            <div class="hamburger-icon">&#9776;</div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="index.html">ホーム</a></li>
+                    <li><a href="OrundumCounter.html">合成玉カウンター</a></li>
+                </ul>
+            </nav>
+        </div>
+  
+        <h1>合成玉カウンター</h1>
+        <div id="results">
+            <div class="result-row">
+                <div class="label">通常分</div>
+                <div id="normal_orundum"></div>
+                <div id="normal_scout"></div>
+                <div id="normal_value"></div>
+                <div id="normal_ceiling"></div>
+            </div>
+            <div class="result-row">
+                <div class="label">月パス</div>
+                <div id="pass_orundum"></div>
+                <div id="pass_scout"></div>
+                <div id="pass_value"></div>
+                <div id="pass_ceiling"></div>
+            </div>
+            <div class="result-row">
+                <div class="label">月パス＋月間スカウト</div>
+                <div id="special_orundum"></div>
+                <div id="special_scout"></div>
+                <div id="special_value"></div>
+                <div id="special_ceiling"></div>
+            </div>
+        </div>
+    </body>
+</html>
