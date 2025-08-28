@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="アークナイツのビンゴシートを作成します。" />
+        <!-- SNSカード対応 (Open Graph) -->
+        <meta property="og:title" content="ビンゴシート" />
+        <meta property="og:description" content="ビンゴシートを作成します。" />
+        <meta property="og:type" content="website" />
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>	<!--jQuery-->
+        <script src="./js/BingoSheet.js"></script>
+        <script src="./js/index.js"></script>
+        <link rel="stylesheet" href="./css/style.css">
+        <title>ビンゴシート</title>
+    </head>
+    <footer id="fixed-footer">
+        ビンゴシートを作成します。
+        © 2025 Bingo Sheet Generator
+    </footer>
+    <body>
+        <!-- ハンバーガーメニュー -->
+        <div class="hamburger-menu">
+            <div class="hamburger-icon">&#9776;</div>
+            <nav class="menu">
+                <ul>
+                    <li><a href="index.html">ホーム</a></li>
+                    <li><a href="OrundumCounter.html">合成玉カウンター</a></li>
+                    <li><a href="BingoSheet.html">ビンゴシート</a></li>
+                </ul>
+            </nav>
+        </div>
+        <h1>ビンゴシート</h1>
+
+        <div class="function-buttons">
+            <button id="generate-btn" class="generate-button">ビンゴシート生成</button>
+
+            <!-- 画像ファイル配列選択プルダウン -->
+            <div class="image-selector">
+                <select id="image-array-select" class="image-select">
+                    <option value="2">統合戦略#2 ファントム</option>
+                    <option value="3">統合戦略#3 ミヅキ</option>
+                    <option value="4">統合戦略#4 サーミ</option>
+                    <option value="5">統合戦略#5 サルカズ</option>
+                </select>
+            </div>
+
+            <button id="clear-all-btn" class="function-button clear-button">すべて解除</button>
+
+            <div class="random-clear-controls">
+                <input type="number" id="random-clear-count" class="number-input" min="1" max="20" value="5" placeholder="1-20">
+                <button id="random-clear-btn" class="function-button random-clear-button">ランダム解除</button>
+            </div>
+
+            <div class="random-select-controls">
+                <input type="number" id="random-select-count" class="number-input" min="1" max="20" value="5" placeholder="1-20">
+                <button id="random-select-btn" class="function-button random-select-button">ランダム選択</button>
+            </div>
+        </div>
+
+        <div id="bingo-sheet">
+            <!-- 5×5のビンゴシート -->
+            <div class="bingo-row">
+                <div class="bingo-cell" data-row="0" data-col="0">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="0" data-col="1">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="0" data-col="2">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="0" data-col="3">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="0" data-col="4">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bingo-row">
+                <div class="bingo-cell" data-row="1" data-col="0">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="1" data-col="1">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="1" data-col="2">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="1" data-col="3">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="1" data-col="4">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bingo-row">
+                <div class="bingo-cell" data-row="2" data-col="0">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="2" data-col="1">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell free-cell" data-row="2" data-col="2">FREE</div>
+                <div class="bingo-cell" data-row="2" data-col="3">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="2" data-col="4">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bingo-row">
+                <div class="bingo-cell" data-row="3" data-col="0">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="3" data-col="1">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="3" data-col="2">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="3" data-col="3">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="3" data-col="4">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bingo-row">
+                <div class="bingo-cell" data-row="4" data-col="0">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="4" data-col="1">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="4" data-col="2">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="4" data-col="3">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+                <div class="bingo-cell" data-row="4" data-col="4">
+                    <div class="choice-tooltip">
+                        <div class="choice-option select">選択</div>
+                        <div class="choice-option unselect">解除</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ビンゴ達成ポップアップ -->
+        <div id="bingo-popup" class="bingo-popup">
+            <div class="bingo-popup-content">
+                <div class="bingo-text">BINGO!</div>
+                <div class="bingo-subtitle">おめでとうございます！</div>
+                <div class="popup-buttons">
+                    <button id="continue-btn" class="continue-button">続ける</button>
+                    <button id="play-again-btn" class="play-again-button">もう一度遊ぶ</button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
