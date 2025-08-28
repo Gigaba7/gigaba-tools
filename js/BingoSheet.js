@@ -1,38 +1,31 @@
 $(function (){
     console.log('BingoSheet.js');
 
-    // 画像ファイルのリスト（imgフォルダ内の画像ファイル名を統一）
-    // 共通画像群（200枚）- すべてのセットで使用
-    const commonImages = Array.from({length: 200}, (_, i) => `img_common_${i}.png`);
+    // 各セットの画像枚数（必要に応じて変更）
+    const setImageCounts = {
+        2: 228,
+        3: 262,
+        4: 263,
+        5: 296
+    };
 
-    // 各セット特有の画像
-    const set2UniqueImages = Array.from({length: 28}, (_, i) => `img2_unique_${i}.png`);  // 228 - 200 = 28枚
-    const set3UniqueImages = Array.from({length: 62}, (_, i) => `img3_unique_${i}.png`);  // 262 - 200 = 62枚
-    const set4UniqueImages = Array.from({length: 63}, (_, i) => `img4_unique_${i}.png`);  // 263 - 200 = 63枚
-    const set5UniqueImages = Array.from({length: 96}, (_, i) => `img5_unique_${i}.png`);  // 296 - 200 = 96枚
-
-    // 使用する画像ファイル配列を選択（デフォルトはセット2）
-    let currentImageFiles = [...commonImages, ...set2UniqueImages];
+    // 使用する画像ファイル配列
+    let currentImageFiles = [];
 
     // 画像配列を選択する関数
     function selectImageArray(setNumber) {
-        switch(setNumber) {
-            case '2':
-                currentImageFiles = [...commonImages, ...set2UniqueImages];
-                break;
-            case '3':
-                currentImageFiles = [...commonImages, ...set3UniqueImages];
-                break;
-            case '4':
-                currentImageFiles = [...commonImages, ...set4UniqueImages];
-                break;
-            case '5':
-                currentImageFiles = [...commonImages, ...set5UniqueImages];
-                break;
-            default:
-                currentImageFiles = [...commonImages, ...set2UniqueImages];
-        }
-        console.log(`画像セット${setNumber}を選択しました (共通: ${commonImages.length}枚 + セット固有: ${currentImageFiles.length - commonImages.length}枚 = 合計: ${currentImageFiles.length}枚)`);
+        // 数値に変換
+        const num = parseInt(setNumber, 10);
+        // セットに対応する画像枚数を取得
+        const count = setImageCounts[num] || setImageCounts[2]; // デフォルトはセット2
+
+        // img/img{setNumber}/0.png ～ count-1.png を生成
+        currentImageFiles = Array.from(
+            { length: count },
+            (_, i) => `img/img${num}/${i}.png`
+        );
+
+        console.log(`画像セット${setNumber}を選択しました (合計: ${currentImageFiles.length}枚)`);
 
         // 画像ファイルの存在確認を実行
         validateImageFiles();
