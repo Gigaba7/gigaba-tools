@@ -14,30 +14,23 @@ $(function (){
 
     // 画像ファイル名から数字を抽出する関数
     function extractImageNumber(filename) {
-        console.log('extractImageNumber called with filename:', filename);
-        
+
         // ファイル名から数字部分を抽出（例：img/img2/0.png → 0, img/img2/21.png → 21）
-        const match = filename.match(/(\d+)\.png$/);
-        console.log('Regex match result:', match);
-        
+        const match = filename.match(/(\d+)\.png$/);        
         if (match) {
             const number = parseInt(match[1], 10);
             // 現在選択されているセット番号を取得
             const currentSet = parseInt($('#image-array-select').val(), 10);
-            console.log('Current set:', currentSet, 'Extracted number:', number);
 
             // img5の場合は連番数字+0、それ以外は連番数字+1
             if (currentSet === 5) {
                 const result = number + 0; // img5の場合はそのまま
-                console.log('Set 5, returning:', result);
                 return result;
             } else {
                 const result = number + 1; // img2,3,4の場合は+1
-                console.log('Set 2,3,4, returning:', result);
                 return result;
             }
         }
-        console.log('No match found, returning 0');
         return 0; // デフォルト値
     }
 
@@ -61,15 +54,6 @@ $(function (){
                 (_, i) => `img/img${num}/${i}.png`
             );
         }
-
-        console.log(`画像セット${setNumber}を選択しました (合計: ${currentImageFiles.length}枚)`);
-        console.log('生成されたファイルパス:', currentImageFiles.slice(0, 5)); // 最初の5件を表示
-        
-        // デバッグ用：最初の10件のファイル名を詳細表示
-        console.log('最初の10件のファイル名詳細:');
-        currentImageFiles.slice(0, 10).forEach((filename, index) => {
-            console.log(`  ${index}: ${filename}`);
-        });
 
         clearAllChoices();
         validateImageFiles();
@@ -97,7 +81,6 @@ $(function (){
                 };
                 img.onerror = () => {
                     missingImages.push(filename);
-                    console.warn(`画像ファイルが見つかりません: ${filename}`);
                     resolve(false);
                 };
                 img.src = `./${filename}`;
@@ -108,14 +91,11 @@ $(function (){
         const checkPromises = currentImageFiles.map(checkImage);
 
         Promise.all(checkPromises).then(() => {
-            console.log(`有効な画像: ${validImages.length}枚, 見つからない画像: ${missingImages.length}枚`);
 
             // 有効な画像のみで配列を更新
             if (validImages.length > 0) {
                 currentImageFiles = validImages;
-                console.log('currentImageFilesが更新されました:', currentImageFiles.length);
             } else {
-                console.error('有効な画像ファイルが見つかりません');
                 alert('画像ファイルが見つかりません。imgフォルダを確認してください。');
             }
         });
@@ -181,7 +161,6 @@ $(function (){
     function generateBingoSheet() {
         // 画像ファイルが不足している場合のチェック
         if (currentImageFiles.length < TOTAL_CELLS) {
-            console.warn(`画像ファイルが不足しています。必要: ${TOTAL_CELLS}枚, 利用可能: ${currentImageFiles.length}枚`);
 
             // 利用可能な画像が0枚の場合は処理を停止
             if (currentImageFiles.length === 0) {
@@ -241,7 +220,6 @@ $(function (){
 
                 // 画像ファイル名から数字を抽出して画像番号を計算
                 const imageNumber = extractImageNumber(selectedImages[imageIndex]);
-                console.log(`Image ${imageIndex}: filename="${selectedImages[imageIndex]}", extracted number=${imageNumber}`);
                 $(this).attr('data-image-number', imageNumber);
 
                 // ツールチップに画像番号を設定
@@ -344,8 +322,6 @@ $(function (){
 
         // 選択済み画像リストを更新
         updateSelectedImagesList();
-
-        console.log('すべての選択状態が解除されました');
     }
 
     // ランダムで指定した数のマスを選択解除する関数
@@ -379,7 +355,6 @@ $(function (){
         }
 
         updateSelectedImagesList();
-        console.log(`解除: セル${clearedCells}件 / 外部${clearedExternal}件`);
     }
 
     function randomSelectChoices(count) {
@@ -436,8 +411,6 @@ $(function (){
         }
 
         updateSelectedImagesList();
-        console.log(`${actualCount}件選定（セル選択: ${markedCells}件 / 外部追加: ${actualCount - markedCells}件）`);
-
         checkBingo();
     }
 
@@ -576,8 +549,6 @@ $(function (){
     function continueGame() {
         // ポップアップを非表示
         hideBingoPopup();
-
-        console.log('ゲームを続行します');
     }
 
     // ゲームリセット機能
@@ -595,8 +566,6 @@ $(function (){
 
         // ビンゴシートを再生成
         generateBingoSheet();
-
-        console.log('ゲームがリセットされました');
     }
 
     // ビンゴポップアップを非表示
@@ -622,8 +591,6 @@ $(function (){
 
         // 選択済み画像リストを更新
         updateSelectedImagesList();
-
-        console.log(`マス (${cell.data('row')}, ${cell.data('col')}) で ${choiceKey} が選択されました`);
 
         // ビンゴ判定を実行（1ラインで終了）
         checkBingo();
