@@ -499,7 +499,7 @@ button:hover {
     gap: 12px;
     width: 600px;
     height: 600px;
-    margin: 20px auto;
+    margin: 0;
     padding: 20px;
     background: #f8f9fa;
     border-radius: 15px;
@@ -532,14 +532,16 @@ button:hover {
 .selected-images-list {
     min-width: 300px;
     max-width: 400px;
+    height: 600px;
     background: #ffffff;
     border-radius: 12px;
     padding: 18px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    height: fit-content;
     position: sticky;
     top: 20px;
     border: 1px solid #e9ecef;
+    display: flex;
+    flex-direction: column;
 }
 
 .selected-images-list h3 {
@@ -550,10 +552,32 @@ button:hover {
     border-bottom: 1px solid #dee2e6;
     padding-bottom: 8px;
     font-weight: 500;
+    flex-shrink: 0;
 }
 
 .selected-images-container {
-    min-height: 200px;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* スクロールバーのスタイル */
+.selected-images-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.selected-images-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.selected-images-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.selected-images-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
 
 .no-selection-message {
@@ -703,6 +727,7 @@ button:hover {
     .selected-images-list {
         min-width: 100%;
         max-width: 450px;
+        height: 450px;
         position: static;
     }
 }
@@ -718,6 +743,10 @@ button:hover {
         height: 350px;
         gap: 8px;
         padding: 12px;
+    }
+    
+    .selected-images-list {
+        height: 350px;
     }
     
     .free-cell {
