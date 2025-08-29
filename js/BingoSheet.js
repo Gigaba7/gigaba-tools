@@ -338,6 +338,7 @@ $(function (){
     function clearAllChoices() {
         // すべてのマスから選択状態を削除
         $('.bingo-cell:not(.free-cell)').removeAttr('data-choice');
+        externalSelectedImages.clear();
 
         // 選択済み画像リストを更新
         updateSelectedImagesList();
