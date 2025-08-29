@@ -73,6 +73,7 @@ $(function (){
 
         clearAllChoices();
         validateImageFiles();
+        generateBingoSheet();
     }
 
     // 画像配列選択プルダウンのイベントハンドラー
