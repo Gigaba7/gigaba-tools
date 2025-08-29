@@ -3,7 +3,8 @@ $(function (){
 
     // 各セットの画像枚数（必要に応じて変更）
     const setImageCounts = {
-        2: 228,
+        2: 25,
+        // 2: 228,
         3: 262,
         4: 263,
         5: 296
@@ -11,6 +12,35 @@ $(function (){
 
     // 使用する画像ファイル配列
     let currentImageFiles = [];
+
+            // 画像ファイル名から数字を抽出する関数
+    function extractImageNumber(filename) {
+        console.log('extractImageNumber called with filename:', filename);
+        
+        // ファイル名から数字部分を抽出（例：img/img2/0.png → 0, img/img2/21.png → 21）
+        const match = filename.match(/(\d+)\.png$/);
+        console.log('Regex match result:', match);
+        
+        if (match) {
+            const number = parseInt(match[1], 10);
+            // 現在選択されているセット番号を取得
+            const currentSet = parseInt($('#image-array-select').val(), 10);
+            console.log('Current set:', currentSet, 'Extracted number:', number);
+
+            // img5の場合は連番数字+0、それ以外は連番数字+1
+            if (currentSet === 5) {
+                const result = number + 0; // img5の場合はそのまま
+                console.log('Set 5, returning:', result);
+                return result;
+            } else {
+                const result = number + 1; // img2,3,4の場合は+1
+                console.log('Set 2,3,4, returning:', result);
+                return result;
+            }
+        }
+        console.log('No match found, returning 0');
+        return 0; // デフォルト値
+    }
 
     // 画像配列を選択する関数
     function selectImageArray(setNumber) {
@@ -20,14 +50,28 @@ $(function (){
         const count = setImageCounts[num] || setImageCounts[2]; // デフォルトはセット2
 
         // img/img{setNumber}/0.png ～ count-1.png を生成
-        currentImageFiles = Array.from(
-            { length: count },
-            (_, i) => `img/img${num}/${i}.png`
-        );
+        // img5の場合は1.pngから開始
+        if (num === 5) {
+            currentImageFiles = Array.from(
+                { length: count },
+                (_, i) => `img/img${num}/${i + 1}.png`
+            );
+        } else {
+            currentImageFiles = Array.from(
+                { length: count },
+                (_, i) => `img/img${num}/${i}.png`
+            );
+        }
 
         console.log(`画像セット${setNumber}を選択しました (合計: ${currentImageFiles.length}枚)`);
+        console.log('生成されたファイルパス:', currentImageFiles.slice(0, 5)); // 最初の5件を表示
+        
+        // デバッグ用：最初の10件のファイル名を詳細表示
+        console.log('最初の10件のファイル名詳細:');
+        currentImageFiles.slice(0, 10).forEach((filename, index) => {
+            console.log(`  ${index}: ${filename}`);
+        });
 
-        // 画像ファイルの存在確認を実行
         validateImageFiles();
     }
 
@@ -55,7 +99,7 @@ $(function (){
                     console.warn(`画像ファイルが見つかりません: ${filename}`);
                     resolve(false);
                 };
-                img.src = `./img/${filename}`;
+                img.src = `./${filename}`;
             });
         };
 
@@ -68,6 +112,7 @@ $(function (){
             // 有効な画像のみで配列を更新
             if (validImages.length > 0) {
                 currentImageFiles = validImages;
+                console.log('currentImageFilesが更新されました:', currentImageFiles.length);
             } else {
                 console.error('有効な画像ファイルが見つかりません');
                 alert('画像ファイルが見つかりません。imgフォルダを確認してください。');
@@ -129,6 +174,22 @@ $(function (){
 
     // ビンゴシート生成関数
     function generateBingoSheet() {
+        // 画像ファイルが不足している場合のチェック
+        if (currentImageFiles.length < TOTAL_CELLS) {
+            console.warn(`画像ファイルが不足しています。必要: ${TOTAL_CELLS}枚, 利用可能: ${currentImageFiles.length}枚`);
+
+            // 利用可能な画像が0枚の場合は処理を停止
+            if (currentImageFiles.length === 0) {
+                alert('利用可能な画像ファイルがありません。画像セットを確認してください。');
+                return;
+            }
+
+            // 利用可能な画像が少ない場合は警告を表示
+            if (currentImageFiles.length < TOTAL_CELLS) {
+                alert(`画像ファイルが不足しています。\n必要: ${TOTAL_CELLS}枚\n利用可能: ${currentImageFiles.length}枚\n\n利用可能な画像のみでビンゴシートを生成します。`);
+            }
+        }
+
         // 既存の画像をクリア（FREEマス以外）
         $('.bingo-cell:not(.free-cell)').empty();
 
@@ -149,15 +210,21 @@ $(function (){
         // 画像ファイルをシャッフル
         const shuffledImages = shuffleArray([...currentImageFiles]);
 
-        // 必要な数の画像を選択
-        const selectedImages = shuffledImages.slice(0, TOTAL_CELLS);
+        // 利用可能な画像数に基づいて、実際に配置するマス数を決定
+        const availableImages = Math.min(shuffledImages.length, TOTAL_CELLS);
+        const selectedImages = shuffledImages.slice(0, availableImages);
+
+        // 現在選択されているセット番号を取得
+        const currentSet = $('#image-array-select').val();
 
         // 各マスに画像を配置
         let imageIndex = 0;
         $('.bingo-cell:not(.free-cell)').each(function() {
             if (imageIndex < selectedImages.length) {
+                const imgPath = `./${selectedImages[imageIndex]}`;
+
                 const img = $('<img>', {
-                    src: `./img/${selectedImages[imageIndex]}`,
+                    src: imgPath,
                     alt: `Bingo Image ${imageIndex + 1}`,
                     title: selectedImages[imageIndex]
                 });
@@ -167,12 +234,70 @@ $(function (){
                     $(this).replaceWith(`<div class="image-placeholder">${selectedImages[imageIndex]}</div>`);
                 });
 
+                // 画像ファイル名から数字を抽出して画像番号を計算
+                const imageNumber = extractImageNumber(selectedImages[imageIndex]);
+                console.log(`Image ${imageIndex}: filename="${selectedImages[imageIndex]}", extracted number=${imageNumber}`);
+                $(this).attr('data-image-number', imageNumber);
+
+                // ツールチップに画像番号を設定
+                $(this).find('.choice-tooltip').attr('data-image-number', imageNumber);
+
                 $(this).append(img);
                 imageIndex++;
+            } else {
+                // 画像が不足している場合はプレースホルダーを表示
+                $(this).append(`<div class="image-placeholder">画像不足</div>`);
+
+                // 画像が不足しているマスは選択不可にする
+                $(this).find('.choice-tooltip').remove();
+                $(this).addClass('disabled-cell');
             }
         });
 
-        console.log('ビンゴシートが生成されました');
+        // 選択済み画像リストを更新
+        updateSelectedImagesList();
+    }
+
+    // 選択済み画像リストを更新する関数
+    function updateSelectedImagesList() {
+        const container = $('#selected-images-container');
+        const selectedCells = $('.bingo-cell[data-choice="select"]:not(.free-cell)');
+
+        // コンテナをクリア
+        container.empty();
+
+        if (selectedCells.length === 0) {
+            container.append('<p class="no-selection-message">まだ画像が選択されていません</p>');
+            return;
+        }
+
+        // 選択済みの画像をリストアップ
+        selectedCells.each(function() {
+            const cell = $(this);
+            const img = cell.find('img');
+            const imageNumber = cell.attr('data-image-number');
+
+            if (img.length > 0) {
+                const listItem = $(`
+                    <div class="selected-image-item" data-row="${cell.data('row')}" data-col="${cell.data('col')}">
+                        <img src="${img.attr('src')}" alt="選択済み画像">
+                        <div class="selected-image-info">
+                            <div class="selected-image-number">No.${imageNumber}</div>
+                        </div>
+                        <button class="remove-selection-btn" title="選択解除">×</button>
+                    </div>
+                `);
+
+                // 選択解除ボタンのクリックイベント
+                listItem.find('.remove-selection-btn').on('click', function() {
+                    cell.removeAttr('data-choice');
+                    updateSelectedImagesList();
+                    checkBingo();
+                });
+
+                container.append(listItem);
+            }
+        });
     }
 
     // 配列をシャッフルする関数（Fisher-Yatesアルゴリズム）
@@ -189,6 +314,9 @@ $(function (){
     function clearAllChoices() {
         // すべてのマスから選択状態を削除
         $('.bingo-cell:not(.free-cell)').removeAttr('data-choice');
+
+        // 選択済み画像リストを更新
+        updateSelectedImagesList();
 
         console.log('すべての選択状態が解除されました');
     }
@@ -220,6 +348,9 @@ $(function (){
             $(selectedCellsArray[i]).removeAttr('data-choice');
         }
 
+        // 選択済み画像リストを更新
+        updateSelectedImagesList();
+
         console.log(`${actualCount}個のマスの選択がランダムに解除されました`);
     }
 
@@ -249,6 +380,9 @@ $(function (){
         for (let i = 0; i < actualCount; i++) {
             $(unselectedCellsArray[i]).attr('data-choice', 'select');
         }
+
+        // 選択済み画像リストを更新
+        updateSelectedImagesList();
 
         console.log(`${actualCount}個のマスがランダムに選択されました`);
 
@@ -420,6 +554,8 @@ $(function (){
     }
 
     // 初期化時にビンゴシートを生成
+    // デフォルトで画像セット2を選択
+    selectImageArray('2');
     generateBingoSheet();
 
     // 選択肢のクリックイベント
@@ -432,6 +568,9 @@ $(function (){
 
         // 選択状態を保存
         cell.attr('data-choice', choiceKey);
+
+        // 選択済み画像リストを更新
+        updateSelectedImagesList();
 
         console.log(`マス (${cell.data('row')}, ${cell.data('col')}) で ${choiceKey} が選択されました`);
 

@@ -37,7 +37,7 @@
             <!-- 画像ファイル配列選択プルダウン -->
             <div class="image-selector">
                 <select id="image-array-select" class="image-select">
-                    <option value="2">統合戦略#2 ファントム</option>
+                    <option value="2" selected>統合戦略#2 ファントム</option>
                     <option value="3">統合戦略#3 ミヅキ</option>
                     <option value="4">統合戦略#4 サーミ</option>
                     <option value="5">統合戦略#5 サルカズ</option>
@@ -57,9 +57,10 @@
             </div>
         </div>
 
-        <div id="bingo-sheet">
-            <!-- 5×5のビンゴシート -->
-            <div class="bingo-row">
+        <!-- ビンゴシートと選択済み画像リストのコンテナ -->
+        <div class="bingo-container">
+            <div id="bingo-sheet">
+                <!-- 5×5のビンゴシート -->
                 <div class="bingo-cell" data-row="0" data-col="0">
                     <div class="choice-tooltip">
                         <div class="choice-option select">選択</div>
@@ -90,8 +91,6 @@
                         <div class="choice-option unselect">解除</div>
                     </div>
                 </div>
-            </div>
-            <div class="bingo-row">
                 <div class="bingo-cell" data-row="1" data-col="0">
                     <div class="choice-tooltip">
                         <div class="choice-option select">選択</div>
@@ -122,8 +121,6 @@
                         <div class="choice-option unselect">解除</div>
                     </div>
                 </div>
-            </div>
-            <div class="bingo-row">
                 <div class="bingo-cell" data-row="2" data-col="0">
                     <div class="choice-tooltip">
                         <div class="choice-option select">選択</div>
@@ -149,8 +146,6 @@
                         <div class="choice-option unselect">解除</div>
                     </div>
                 </div>
-            </div>
-            <div class="bingo-row">
                 <div class="bingo-cell" data-row="3" data-col="0">
                     <div class="choice-tooltip">
                         <div class="choice-option select">選択</div>
@@ -181,8 +176,6 @@
                         <div class="choice-option unselect">解除</div>
                     </div>
                 </div>
-            </div>
-            <div class="bingo-row">
                 <div class="bingo-cell" data-row="4" data-col="0">
                     <div class="choice-tooltip">
                         <div class="choice-option select">選択</div>
@@ -212,6 +205,14 @@
                         <div class="choice-option select">選択</div>
                         <div class="choice-option unselect">解除</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- 選択済み画像リスト -->
+            <div id="selected-images-list" class="selected-images-list">
+                <h3>選択済み画像</h3>
+                <div id="selected-images-container" class="selected-images-container">
+                    <p class="no-selection-message">まだ画像が選択されていません</p>
                 </div>
             </div>
         </div>
