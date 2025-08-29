@@ -12,7 +12,7 @@ $(function (){
     // 使用する画像ファイル配列
     let currentImageFiles = [];
 
-            // 画像ファイル名から数字を抽出する関数
+    // 画像ファイル名から数字を抽出する関数
     function extractImageNumber(filename) {
         console.log('extractImageNumber called with filename:', filename);
         
@@ -71,6 +71,7 @@ $(function (){
             console.log(`  ${index}: ${filename}`);
         });
 
+        clearAllChoices();
         validateImageFiles();
     }
 
@@ -146,6 +147,7 @@ $(function (){
 
     // 生成ボタンのクリックイベント
     $('#generate-btn').on('click', function() {
+        clearAllChoices();
         generateBingoSheet();
     });
 
