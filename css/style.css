@@ -492,12 +492,147 @@ button:hover {
     }
 }
 
+/* ビンゴシートのレイアウト */
 #bingo-sheet {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    width: 600px;
+    height: 600px;
     margin: 20px auto;
-    max-width: 600px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* メインコンテナのレイアウト */
+.main-content {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ビンゴシートと選択済み画像リストのコンテナ */
+.bingo-container {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 選択済み画像リスト */
+.selected-images-list {
+    min-width: 300px;
+    max-width: 400px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.selected-images-list h3 {
+    margin: 0 0 15px 0;
+    color: #495057;
+    font-size: 1.1em;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 8px;
+    font-weight: 500;
+}
+
+.selected-images-container {
+    min-height: 200px;
+}
+
+.no-selection-message {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin: 20px 0;
+}
+
+.selected-image-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    margin: 6px 0;
+    background: #f8f9fa;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    border: 1px solid #e9ecef;
+}
+
+.selected-image-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+}
+
+.selected-image-item img {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.selected-image-info {
+    flex: 1;
+}
+
+.selected-image-number {
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.9em;
+}
+
+.selected-image-filename {
+    color: #6c757d;
+    font-size: 0.75em;
+    word-break: break-all;
+}
+
+.remove-selection-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 3px 6px;
+    font-size: 0.75em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.remove-selection-btn:hover {
+    background: #5a6268;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 1200px) {
+    .bingo-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .selected-images-list {
+        min-width: 100%;
+        max-width: 500px;
+        position: static;
+    }
 }
 
 .bingo-row {
@@ -546,12 +681,29 @@ button:hover {
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .bingo-cell {
-        width: 60px;
-        height: 60px;
+        width: 70px;
+        height: 70px;
     }
 
     #bingo-sheet {
-        max-width: 350px;
+        width: 450px;
+        height: 450px;
+        gap: 10px;
+        padding: 15px;
+    }
+    
+    .bingo-container {
+        flex-direction: column;
+        align-items: center;
+        max-width: 100%;
+        padding: 15px;
+        gap: 20px;
+    }
+    
+    .selected-images-list {
+        min-width: 100%;
+        max-width: 450px;
+        position: static;
     }
 }
 
@@ -562,9 +714,12 @@ button:hover {
     }
 
     #bingo-sheet {
-        max-width: 280px;
+        width: 350px;
+        height: 350px;
+        gap: 8px;
+        padding: 12px;
     }
-
+    
     .free-cell {
         font-size: 0.9rem;
     }
@@ -586,27 +741,43 @@ button:hover {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    display: none;
-    background-color: rgba(44, 62, 80, 0.95);
-    border-radius: 8px;
-    padding: 8px;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
     white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none;
 }
 
-.bingo-cell:hover .choice-tooltip {
+/* 画像番号表示 */
+.choice-tooltip::before {
+    content: "No." attr(data-image-number);
     display: block;
+    font-size: 12px;
+    color: #ffd700;
+    margin-bottom: 4px;
+    font-weight: bold;
 }
 
+/* ビンゴセルにホバーした時にツールチップを表示 */
+.bingo-cell:hover .choice-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 選択肢オプション */
 .choice-option {
-    padding: 6px 12px;
+    cursor: pointer;
+    padding: 4px 8px;
     margin: 2px 0;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: bold;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
+    pointer-events: auto;
 }
 
 .choice-option.select {
