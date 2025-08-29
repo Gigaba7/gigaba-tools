@@ -3,8 +3,7 @@ $(function (){
 
     // 各セットの画像枚数（必要に応じて変更）
     const setImageCounts = {
-        2: 41,
-        // 2: 228,
+        2: 228,
         3: 262,
         4: 263,
         5: 296
@@ -380,28 +379,46 @@ $(function (){
         console.log(`解除: セル${clearedCells}件 / 外部${clearedExternal}件`);
     }
 
-    // ランダムで指定した数のマスを選択する関数
     function randomSelectChoices(count) {
-        // フォルダ全体から画像をランダム選出し、シート上に存在すればそのセルを選択、存在しなければ外部リストに追加
         if (currentImageFiles.length === 0) {
             alert('画像ファイルが読み込まれていません');
             return;
         }
 
-        const candidates = [...currentImageFiles];
-        if (candidates.length === 0) {
-            alert('追加できる画像がありません');
+        // 現在選択済みのファイル名を取得（ビンゴシート + 外部選択）
+        const selectedFilenames = new Set();
+
+        // ビンゴシート上の選択
+        $('.bingo-cell:not(.free-cell)[data-choice="select"]').each(function () {
+            const img = $(this).find('img');
+            if (img.length > 0) {
+                selectedFilenames.add(img.attr('title')); // title 属性にファイル名が入っている
+            }
+        });
+
+        // 外部選択されたファイル名
+        for (const filename of externalSelectedImages) {
+            selectedFilenames.add(filename);
+        }
+
+        // 未選択の画像だけを抽出
+        const unselectedCandidates = currentImageFiles.filter(file => !selectedFilenames.has(file));
+
+        if (unselectedCandidates.length === 0) {
+            alert('選択可能な未使用画像がありません');
             return;
         }
 
-        const actualCount = Math.min(count, candidates.length);
-        const shuffled = shuffleArray(candidates);
+        const actualCount = Math.min(count, unselectedCandidates.length);
+        const shuffled = shuffleArray(unselectedCandidates);
 
         let markedCells = 0;
         for (let i = 0; i < actualCount; i++) {
             const filename = shuffled[i];
-            // シート上に同じ画像があるかを検索（img の title はフルパス相対名）
+
+            // ビンゴシート上に画像があるか確認（titleで検索）
             const targetImg = $(`.bingo-cell:not(.free-cell) img[title="${filename}"]`).first();
+
             if (targetImg.length > 0) {
                 const cell = targetImg.closest('.bingo-cell');
                 const imageNumber = extractImageNumber(filename);
@@ -410,7 +427,7 @@ $(function (){
                 cell.attr('data-choice', 'select');
                 markedCells++;
             } else {
-                // シート外 → 外部選択リストに追加
+                // 外部選択リストに追加
                 externalSelectedImages.add(filename);
             }
         }
@@ -418,7 +435,6 @@ $(function (){
         updateSelectedImagesList();
         console.log(`${actualCount}件選定（セル選択: ${markedCells}件 / 外部追加: ${actualCount - markedCells}件）`);
 
-        // ビンゴ判定を実行
         checkBingo();
     }
 
