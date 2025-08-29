@@ -3,7 +3,8 @@ $(function (){
 
     // 各セットの画像枚数（必要に応じて変更）
     const setImageCounts = {
-        2: 228,
+        2: 41,
+        // 2: 228,
         3: 262,
         4: 263,
         5: 296
@@ -141,6 +142,9 @@ $(function (){
         diagonals: new Set() // 0: 左上から右下, 1: 右上から左下
     };
 
+    // ビンゴシート外の選択（画像のみ）を保持するセット（ファイル名フルパス相対）
+    const externalSelectedImages = new Set();
+
     // 生成ボタンのクリックイベント
     $('#generate-btn').on('click', function() {
         generateBingoSheet();
@@ -265,38 +269,59 @@ $(function (){
         // コンテナをクリア
         container.empty();
 
-        if (selectedCells.length === 0) {
-            container.append('<p class="no-selection-message">まだ画像が選択されていません</p>');
-            return;
-        }
-
-        // 選択済みの画像をリストアップ
+        // まずはビンゴシート上の選択を表示
         selectedCells.each(function() {
             const cell = $(this);
             const img = cell.find('img');
             const imageNumber = cell.attr('data-image-number');
-
-            if (img.length > 0) {
-                const listItem = $(`
-                    <div class="selected-image-item" data-row="${cell.data('row')}" data-col="${cell.data('col')}">
-                        <img src="${img.attr('src')}" alt="選択済み画像">
-                        <div class="selected-image-info">
-                            <div class="selected-image-number">No.${imageNumber}</div>
-                        </div>
-                        <button class="remove-selection-btn" title="選択解除">×</button>
+            const listItem = $(`
+                <div class="selected-image-item" data-source="cell" data-row="${cell.data('row')}" data-col="${cell.data('col')}">
+                    ${img.length > 0 ? `<img src="${img.attr('src')}" alt="選択済み画像">` : ''}
+                    <div class="selected-image-info">
+                        <div class="selected-image-number">No.${imageNumber}</div>
                     </div>
-                `);
+                    <button class="remove-selection-btn" title="選択解除">×</button>
+                </div>
+            `);
 
-                // 選択解除ボタンのクリックイベント
-                listItem.find('.remove-selection-btn').on('click', function() {
-                    cell.removeAttr('data-choice');
-                    updateSelectedImagesList();
-                    checkBingo();
-                });
+            // 選択解除ボタン（セル由来）
+            listItem.find('.remove-selection-btn').on('click', function() {
+                cell.removeAttr('data-choice');
+                cell.removeAttr('data-image-number');
+                updateSelectedImagesList();
+                checkBingo();
+            });
 
-                container.append(listItem);
-            }
+            container.append(listItem);
         });
+
+        // 次に、外部選択（ビンゴシート外）を表示
+        const externalList = Array.from(externalSelectedImages);
+        externalList.forEach((filename) => {
+            const imageNumber = extractImageNumber(filename);
+            const listItem = $(`
+                <div class="selected-image-item" data-source="external" data-filename="${filename}">
+                    <img src="./${filename}" alt="選択済み画像">
+                    <div class="selected-image-info">
+                        <div class="selected-image-number">No.${imageNumber}</div>
+                    </div>
+                    <button class="remove-selection-btn" title="選択解除">×</button>
+                </div>
+            `);
+
+            // 選択解除ボタン（外部リスト由来）
+            listItem.find('.remove-selection-btn').on('click', function() {
+                externalSelectedImages.delete(filename);
+                updateSelectedImagesList();
+            });
+
+            container.append(listItem);
+        });
+
+        // 何もなければメッセージ表示
+        if (selectedCells.length === 0 && externalList.length === 0) {
+            container.append('<p class="no-selection-message">まだ画像が選択されていません</p>');
+        }
     }
 
     // 配列をシャッフルする関数（Fisher-Yatesアルゴリズム）
@@ -322,70 +347,77 @@ $(function (){
 
     // ランダムで指定した数のマスを選択解除する関数
     function randomClearChoices(count) {
-        // 現在選択されているマスを取得
-        const selectedCells = $('.bingo-cell:not(.free-cell)[data-choice]');
+        // 選択済み（セル選択＋外部選択）の両方から解除対象を抽出
+        const selectedCells = $('.bingo-cell:not(.free-cell)[data-choice="select"]');
+        const externalList = Array.from(externalSelectedImages).map((f) => ({ type: 'external', filename: f }));
+        const cellList = selectedCells.toArray().map((el) => ({ type: 'cell', cell: $(el) }));
+        const combined = cellList.concat(externalList);
 
-        if (selectedCells.length === 0) {
-            alert('選択されているマスがありません');
+        if (combined.length === 0) {
+            alert('選択済みリストに項目がありません');
             return;
         }
 
-        // 選択されているマスの数を超える場合は調整
-        const actualCount = Math.min(count, selectedCells.length);
+        const actualCount = Math.min(count, combined.length);
+        const shuffled = shuffleArray(combined);
 
-        // ランダムに選択されたマスを配列に変換
-        const selectedCellsArray = selectedCells.toArray();
-
-        // Fisher-Yatesアルゴリズムでシャッフル
-        for (let i = selectedCellsArray.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [selectedCellsArray[i], selectedCellsArray[j]] = [selectedCellsArray[j], selectedCellsArray[i]];
-        }
-
-        // 指定された数のマスを選択解除
+        let clearedCells = 0;
+        let clearedExternal = 0;
         for (let i = 0; i < actualCount; i++) {
-            $(selectedCellsArray[i]).removeAttr('data-choice');
+            const item = shuffled[i];
+            if (item.type === 'cell') {
+                item.cell.removeAttr('data-choice');
+                item.cell.removeAttr('data-image-number');
+                clearedCells++;
+            } else {
+                externalSelectedImages.delete(item.filename);
+                clearedExternal++;
+            }
         }
 
-        // 選択済み画像リストを更新
         updateSelectedImagesList();
-
-        console.log(`${actualCount}個のマスの選択がランダムに解除されました`);
+        console.log(`解除: セル${clearedCells}件 / 外部${clearedExternal}件`);
     }
 
     // ランダムで指定した数のマスを選択する関数
     function randomSelectChoices(count) {
-        // 現在選択されていないマスを取得（FREEマス以外）
-        const unselectedCells = $('.bingo-cell:not(.free-cell):not([data-choice])');
-
-        if (unselectedCells.length === 0) {
-            alert('選択可能なマスがありません');
+        // フォルダ全体から画像をランダム選出し、シート上に存在すればそのセルを選択、存在しなければ外部リストに追加
+        if (currentImageFiles.length === 0) {
+            alert('画像ファイルが読み込まれていません');
             return;
         }
 
-        // 選択可能なマスの数を超える場合は調整
-        const actualCount = Math.min(count, unselectedCells.length);
-
-        // 選択可能なマスを配列に変換
-        const unselectedCellsArray = unselectedCells.toArray();
-
-        // Fisher-Yatesアルゴリズムでシャッフル
-        for (let i = unselectedCellsArray.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [unselectedCellsArray[i], unselectedCellsArray[j]] = [unselectedCellsArray[j], unselectedCellsArray[i]];
+        const candidates = [...currentImageFiles];
+        if (candidates.length === 0) {
+            alert('追加できる画像がありません');
+            return;
         }
 
-        // 指定された数のマスを選択状態にする
+        const actualCount = Math.min(count, candidates.length);
+        const shuffled = shuffleArray(candidates);
+
+        let markedCells = 0;
         for (let i = 0; i < actualCount; i++) {
-            $(unselectedCellsArray[i]).attr('data-choice', 'select');
+            const filename = shuffled[i];
+            // シート上に同じ画像があるかを検索（img の title はフルパス相対名）
+            const targetImg = $(`.bingo-cell:not(.free-cell) img[title="${filename}"]`).first();
+            if (targetImg.length > 0) {
+                const cell = targetImg.closest('.bingo-cell');
+                const imageNumber = extractImageNumber(filename);
+                cell.attr('data-image-number', imageNumber);
+                cell.find('.choice-tooltip').attr('data-image-number', imageNumber);
+                cell.attr('data-choice', 'select');
+                markedCells++;
+            } else {
+                // シート外 → 外部選択リストに追加
+                externalSelectedImages.add(filename);
+            }
         }
 
-        // 選択済み画像リストを更新
         updateSelectedImagesList();
+        console.log(`${actualCount}件選定（セル選択: ${markedCells}件 / 外部追加: ${actualCount - markedCells}件）`);
 
-        console.log(`${actualCount}個のマスがランダムに選択されました`);
-
-        // ランダム選択後にビンゴ判定を実行
+        // ビンゴ判定を実行
         checkBingo();
     }
 
